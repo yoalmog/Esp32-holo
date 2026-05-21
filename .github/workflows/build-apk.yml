@@ -50,7 +50,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Make Gradle Wrapper Executable
+       - name: Regenerate Gradle Wrapper JAR
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-8.14.3-bin.zip -O /tmp/gradle.zip
+          cd /tmp && unzip -q gradle.zip
+          cd $GITHUB_WORKSPACE/android
+          /tmp/gradle-8.14.3/bin/gradle wrapper --gradle-version 8.14.3 --distribution-type all
+     
+       - name: Make Gradle Wrapper Executable
         run: chmod +x android/gradlew
 
       - name: Build Android Debug APK
