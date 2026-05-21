@@ -34,11 +34,11 @@ jobs:
         run: npx cap sync
 
       - name: Set up JDK 21
+        id: setup-java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17'
-          cache: 'gradle'
+          java-version: '21'
 
       - name: Cache Gradle Packages
         uses: actions/cache@v4
@@ -46,9 +46,9 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-jdk21-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-gradle-jdk21-
 
       - name: Regenerate Gradle Wrapper JAR
         run: |
@@ -63,7 +63,9 @@ jobs:
       - name: Build Android Debug APK
         run: |
           cd android
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
